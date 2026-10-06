@@ -19,7 +19,7 @@ random_instances,all,rounding,,"payload,child weight,Q_M,costs,T_max:2 decimals;
 random_instances,all,generation_acceptance,,first candidate with >=1 sea arc and basic feasible receiving/transport capacity; reachable islands from available bases via robust-energy-feasible closed routes of <=3 stops; maximum 300 candidates per generation call
 algorithm_settings,all,overtime_evaluation,,exact-lp
 algorithm_settings,Zhoushan,optimization_method,,route-column restricted master (RMP); pricing=false; polish=false
-algorithm_settings,benchmark_RPM;case;risk,mip_gap,,benchmark_small_original=0.005; benchmark_small_replacement=0.001; benchmark_large=0.01; risk=0.01; case=0.001
+algorithm_settings,benchmark_RPM_large;case;risk,mip_gap,,benchmark_large=0.01; risk=0.01; case=0.001
 algorithm_settings,benchmark_Gurobi,mip_gap,,small=0.001; large=0.01
 algorithm_settings,benchmark_RPM;case;risk,route_pool_size_parameter,N_R,benchmark_small=80; benchmark_large=120; risk=120; case=600
 algorithm_settings,benchmark_RPM;case;risk,neighbor_limit,,benchmark=12; risk=12; case=9
