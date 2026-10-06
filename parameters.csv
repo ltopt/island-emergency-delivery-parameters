@@ -1,0 +1,80 @@
+group,scope,parameter,symbol,value
+random_instances,all,instance_generation_seeds,,2026;2027;2028;2029;2030; use replacement_seed_mapping where specified
+random_instances,all,replacement_seed_mapping,,Set3:2029->915030;Set4:2029->916031;Set5:2028->917032;Set6:2028->918029;Set7:2030->919031;Set8:2030->920031;Set9:2030->921032;Set10:2030->922031;Set11:2029->923030;Set11:2030->923031;Set12:2029->924030;Set13:2029->963031;Set14:2029->964030;Set17:2028->967029;Set18:2028->968030;Set19:2028->969029;Set20:2028->970029;Set21:2030->971033;Set22:2030->972031
+random_instances,all,random_number_generator,,"Python random.Random(seed) (MT19937); continuous draws=Uniform(a,b); discrete choices=uniform; randint bounds inclusive"
+random_instances,all,sampling_order,,technical inputs; base and service coordinates; ordered arcs; base availability; period factors; island/period demand inputs; sea-arc/period time and energy inputs; costs; energy budgets; feasibility screen; retry without reseeding
+random_instances,all,technical_distributions,,"Q_U~Uniform(10,16) kg; child_weight~Uniform(8,14) kg; child_speed~Uniform(12,16) m/s; child_range~Uniform(12,16) km; mother_speed~Uniform(20,28) m/s"
+random_instances,all,mother_capacity_generation,Q_M,"Q_M=round(min(160,max(80,(child_weight+0.85*Q_U)*ceil(K/M)+25)),2) kg"
+random_instances,all,base_coordinate_distributions,,"O=(0,0); x~Uniform(8,28) km; y~Uniform(-12,12) km; minimum island separation=0.7 km; up to 500 trials then one unchecked draw"
+random_instances,all,service_coordinate_distributions,,"center=uniform candidate base; radius~Uniform(1.2,0.36*child_range) km; angle~Uniform(0,2*pi); reject x<4 km or separation<0.7 km; up to 1000 trials then draw once and clamp x>=4 km"
+random_instances,all,network_generation,,"directed Euclidean arcs between islands when distance<=round(0.95*child_range,3) km; sea arc when distance>=4 km, otherwise independent probability 0.20"
+random_instances,all,base_availability_generation,,"independent Bernoulli(0.86) by base/period; if none available, set one uniformly selected base available"
+random_instances,all,service_window_generation,,"T=3: length~UniformDiscrete{2,3}; T=4: length~UniformDiscrete{2,3,4}; start~UniformDiscrete{1,...,T-length+1}"
+random_instances,all,period_demand_factor,,"f_t=max(0.72,1.15-0.12*(t-1)+Uniform(-0.05,0.05)); shared across islands"
+random_instances,all,demand_generation,,"severity_i~Uniform(2.5,5.8) kg/period; mu_it=severity_i*f_t*Uniform(0.86,1.14) within service window; outside window=0"
+random_instances,all,demand_uncertainty_generation,,"low_D_it=mu_it*Uniform(0.60,0.82); high_D_it=mu_it*Uniform(1.20,1.35); sigma_D_it=mu_it*Uniform(0.10,0.18); epsilon_i~Uniform(0.05,0.10)"
+random_instances,all,receiving_capacity_generation,,"U_it=max(0.90*Q_U,high_factor_it*unrounded_mu_it+Uniform(3,7)) kg within service window; outside window=0"
+random_instances,all,demand_rescaling_rule,,"if total robust demand>0.82*K*Q_U*T, multiply mu_D,low_D,high_D,sigma_D by max(0.55,0.93*0.82*K*Q_U*T/total robust demand); receiving capacities unchanged"
+random_instances,all,time_uncertainty_generation,,"sea-arc/period unrounded mu=tau0*Uniform(0.05,0.16); mu_tau=round(mu,6); sigma_tau=round(mu*Uniform(0.30,0.50),6); xi_low=0; xi_high=round(mu*Uniform(2.0,2.8),6)"
+random_instances,all,energy_uncertainty_generation,,"gamma0=1 km-equivalent/km; delta_hat_e=gamma0*Uniform(0.08,0.24); theta0_e~UniformDiscrete{0.5,1,1.5}; theta1_e~UniformDiscrete{0.25,0.5,0.75}"
+random_instances,all,cost_distributions,,"c0~Uniform(20,60)/kg; c1~Uniform(8,22)/km; c2~Uniform(1.2,4.5)/km; F_M~Uniform(350,950); F_U~Uniform(25,85); lambda_time~Uniform(80,260)/min; normalized cost units"
+random_instances,all,time_soft_threshold_distribution,,"T_max~Uniform(35,50) min"
+random_instances,all,rounding,,"payload,child weight,Q_M,costs,T_max:2 decimals; distances,demand bounds,MAD,U,epsilon,E_max,coordinates:4 decimals; time/energy uncertainty and v0,tau0:6 decimals; max arc length:3 decimals; unrounded geometry and speed/range draws retained for calculations"
+random_instances,all,generation_acceptance,,first candidate with >=1 sea arc and basic feasible receiving/transport capacity; reachable islands from available bases via robust-energy-feasible closed routes of <=3 stops; maximum 300 candidates per seed
+algorithm_settings,all,overtime_evaluation,,exact-lp
+algorithm_settings,Zhoushan,optimization_method,,route-column restricted master (RMP); pricing=false; polish=false
+algorithm_settings,benchmark_RPM;case;risk,mip_gap,,benchmark_small_original=0.005; benchmark_small_replacement=0.001; benchmark_large=0.01; risk=0.01; case=0.001
+algorithm_settings,benchmark_Gurobi,mip_gap,,small=0.001; large=0.01
+algorithm_settings,benchmark_RPM;case;risk,route_pool_size_parameter,N_R,benchmark_small=80; benchmark_large=120; risk=120; case=600
+algorithm_settings,benchmark_RPM;case;risk,neighbor_limit,,benchmark=12; risk=12; case=9
+algorithm_settings,benchmark_RPM;risk,pricing_iterations,,benchmark_small=2; benchmark_large=3; risk=1
+algorithm_settings,benchmark_RPM;risk,pricing_lp_time_limit_sec,,benchmark_small=30; benchmark_large=60; risk=60
+algorithm_settings,benchmark_RPM;risk,pricing_max_added,,benchmark_small=80; benchmark_large=120; risk=120
+algorithm_settings,benchmark_RPM;risk,alns_iterations,,benchmark_small=10; benchmark_large=30; risk=30
+algorithm_settings,benchmark_RPM;risk,alns_initial_subset,,benchmark_small=60; benchmark_large=100; risk=80
+algorithm_settings,benchmark_RPM;risk,alns_repair_add,,benchmark_small=60; benchmark_large=100; risk=80
+algorithm_settings,benchmark_RPM;risk,alns_destroy_fraction,,0.22
+algorithm_settings,benchmark_RPM;risk,alns_local_time_limit_sec,,benchmark_small=3; benchmark_large=8; risk=20
+algorithm_settings,benchmark_RPM;risk,alns_local_mip_gap,,benchmark=0.05; risk=0.02
+algorithm_settings,benchmark_RPM;risk,polish_time_limit_sec,,benchmark_small=20; benchmark_large=60; risk=60
+algorithm_settings,benchmark_RPM;risk,polish_neighborhood_time_limit_sec,,benchmark_small=5; benchmark_large=15; risk=15
+algorithm_settings,benchmark_RPM;risk,gurobi_main_controls,,MIPFocus=1; Cuts=2; Heuristics=0.2; Presolve=2
+random_seeds,optimization,algorithm_seed_rule,,benchmark Gurobi and RPM ALNS=effective instance-generation seed; risk Gurobi and RPM ALNS=20260713; Zhoushan Gurobi=20260713
+case_study,Zhoushan,island_coordinates_WGS84_lon_lat,,"I1=(122.424167,30.690833);I2=(122.458236,30.745326);I3=(122.56,30.663333);I4=(122.757467,30.70915);I5=(122.823613,30.714519);I6=(122.79,30.786667);I7=(122.695417,30.848472);I8=(122.645,30.821667);I9=(122.621667,30.821667);I10=(122.663889,30.810833)"
+case_study,Zhoushan,origin_coordinates_WGS84_lon_lat,,"(122.12978312,30.602909873)"
+case_study,Zhoushan,population_2020_for_demand_generation,,I1=30635;I3=8333;I4=7862;I5=7514
+case_study,Zhoushan,distance_and_network_rule,,Complete directed nonself all-sea island arcs; Haversine radius=6371.0088 km; island and origin-to-base distances rounded to 4 decimals
+case_study,Zhoushan,service_window,"[s_i,e_i]","[1,4] for every island"
+case_study,Zhoushan,nominal_demand_rule,mu_D,"I1,I3,I4,I5: raw_mu_it=(0.18*population_i/1000)*f_t kg; other islands:raw_mu_it=0.60*f_t kg; mu_D_it=round(raw_mu_it,4)"
+case_study,Zhoushan,demand_period_factors,,"t=1,2,3,4: 1.25;1.10;0.90;0.75"
+case_study,Zhoushan,demand_support_and_MAD_rule,"[low_D,high_D];sigma_D","low_D=round(0.25*raw_mu,4); high_D=round(2.00*raw_mu,4); sigma_D=round(0.18*raw_mu,4)"
+case_study,Zhoushan,receiving_capacity_rule,U_it,"U_it=round(max(10 kg,1.05*high_D_it),4)"
+case_study,Zhoushan,period_wind_speed_mps_from_degrees,,"t=1:(5,20);t=2:(7,70);t=3:(9,140);t=4:(6,300)"
+case_study,Zhoushan,track_holding_wind_rule,,"heading=initial great-circle bearing i to j in degrees; theta=((wind_from+180)%360)-heading; along=w*cos(radians(theta)); cross=w*sin(radians(theta)); ground_speed=max(0.50,sqrt(max(0.25,v_U^2-cross^2))+along) m/s"
+case_study,Zhoushan,time_delay_support_and_MAD_rule,mu_tau;xi_low;xi_high;sigma_tau,"tau_raw=1000/(60*v_U); m=max(1000/(60*ground_speed)-tau_raw,0.005*tau_raw); mu_tau=round(m,6); xi_low=0; xi_high=round(2.50*m+0.02*tau_raw,6); sigma_tau=round(min(0.25*m+0.005*tau_raw,0.90*2*m*(xi_high-m)/xi_high),6)"
+case_study,Zhoushan,arc_energy_deviation_rule,delta_hat_e,"delta_hat_e=round(min(0.08,0.015+0.08*max(0,-along)/v_U),6)"
+case_study,Zhoushan,mother_fixed_cost,F_M,100.0
+case_study,Zhoushan,mother_payload_capacity_kg,Q_M,350.0
+case_study,Zhoushan,child_transport_weight_kg,child_weight,65.0
+case_study,Zhoushan,child_fixed_cost,F_U,8.0
+case_study,Zhoushan,child_payload_capacity_kg,Q_U,10.0
+case_study,Zhoushan,mission_duration_limit_min,T_max,60.0
+case_study,Zhoushan,energy_budget_km_equivalent,E_max,28.0
+case_study,Zhoushan,nominal_energy_per_km,gamma0,1.0
+case_study,Zhoushan,procurement_cost_per_kg,c0,1.0
+case_study,Zhoushan,mother_transport_cost_per_km,c1,2.0
+case_study,Zhoushan,child_flight_cost_per_km,c2,0.6
+case_study,Zhoushan,overtime_penalty_per_min,lambda_time,4.0
+case_study,Zhoushan,energy_budget_intercept,theta0_e,0.5
+case_study,Zhoushan,energy_budget_per_sea_arc,theta1_e,0.25
+case_study,Zhoushan,flight_speed_and_time_conversion,v_M;v_U;v0;tau0,"v_M=25 m/s;v_U=15 m/s;v0=round(1000/(60*v_M),6);tau0=round(1000/(60*v_U),6) min/km"
+random_seeds,risk_protection,instance_seed_by_set,,"Sets8-12,20,24:2026;Sets13,15,17:2027"
+out_of_sample,all,marginal_moment_mapping,,"(l,mu,u,m) demand=(low_cum,mu_cum,high_cum,sigma_cum)=round4(sum of corresponding per-period moments over service window);time=(xi_low,mu_tau,xi_high,sigma_tau);energy rho=(0,0.5,1,0.25);m=mean absolute deviation"
+out_of_sample,bounded_three_point,distribution_rule,,"independent X in {l,mu,u};p_l=m/[2(mu-l)];p_u=m/[2(u-mu)];p_mu=1-p_l-p_u"
+out_of_sample,bounded_three_point,energy_projection_rule,,"routewise radial scaling rho <- rho*Gamma/sum(rho) when sum(rho)>Gamma;Gamma=min(N,max(0,theta0_e+theta1_e*N));N=route sea-arc count;otherwise unchanged"
+out_of_sample,independent_lognormal;correlated_storm,lognormal_marginal_rule,,"sigma=2*Phi^(-1)(0.5+m/(4*mu));X=mu*exp(sigma*z-sigma^2/2);untruncated;independent family z iid N(0,1)"
+out_of_sample,correlated_storm,dependence_parameters,,rho_D=0.45;rho_W=0.60;rho_TE=0.70;p_storm=0.05;shift_D=1.25;shift_T=1.50;shift_E=1.50
+out_of_sample,correlated_storm,dependence_rule,,"S~Bernoulli(p_storm);D0,W_t,eD_i,eT_a_t,eE_a_t iid N(0,1);zD_i=sqrt(rho_D)*D0+sqrt(1-rho_D)*eD_i+S*shift_D;zT0_a_t=sqrt(rho_W)*W_t+sqrt(1-rho_W)*eT_a_t;zT_a_t=zT0_a_t+S*shift_T;zE_a_t=rho_TE*zT0_a_t+sqrt(1-rho_TE^2)*eE_a_t+S*shift_E;no projection"
+out_of_sample,all,violation_threshold,,"1e-9 (positive shortage, mission overtime, and energy excess threshold)"
+random_seeds,out_of_sample,random_stream_and_draw_order,,"CPython3.13 random.Random(seed from scenario_seed_by_instance_and_family);demand original node strings sorted lexicographically:synthetic B1,B2,... before I1,I10,I11,I2,I3,...;Zhoushan public aliases I6,I3,I10,I8,I4,I7,I2,I5,I1,I9;time and energy sort original entire encoded i|j|t strings lexicographically (synthetic I10| before I1|);case key ordering uses the listed alias rank for i then j then period;each scenario demand then time then energy;bounded uses random();independent uses gauss(0,1);storm order random() for S,gauss for D0,gauss for W_t in ascending t,then domain-specific gauss in demand,time,energy order"
+random_seeds,out_of_sample,scenario_seed_by_instance_and_family,,"family order bounded_three_point;independent_lognormal;correlated_storm | Set8=(18408886324889050269,15592836250974229310,14660994313316016140);Set9=(4821544020756969774,14827805206148237484,10231351255409913558);Set10=(1611592367150280283,12128382935344357256,1131865833508272892);Set11=(5938213492180427252,9565980079848990751,4625289497571191001);Set12=(7969236299268870400,6967914671872224732,15163194237533837707);Set13=(16459187435215609337,17307631621973018057,13486231509350366265);Set15=(1662710921399441628,16192828407846825486,17753675181604297867);Set17=(14410388986045144685,13109218067837334400,1683727979958150717);Set20=(14919847439137129466,9142278826275758821,10175302029593187185);Set24=(541313170134277449,13855096453620814445,6588567660629806395);Zhoushan=(10927405404720412127,10404697261447762823,9152705675343485436)"
